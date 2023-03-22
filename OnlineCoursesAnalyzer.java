@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
-
 public class OnlineCoursesAnalyzer {
     public static class Course {
         private String institution;
@@ -69,8 +68,8 @@ public class OnlineCoursesAnalyzer {
         }
 
         public Course6(String courseNum, String launchDate, String courseName, double averageUserAge, double averageMaleRate, double averageBachelorRate) {
-            this.courseNum=courseNum;
-            this.launchDate=launchDate;
+            this.courseNum = courseNum;
+            this.launchDate = launchDate;
             this.courseName = courseName;
 
 
@@ -95,10 +94,6 @@ public class OnlineCoursesAnalyzer {
             return averageBachelorRate;
         }
     }
-
-
-
-
 
 
     private List<String[]> data = new ArrayList<>();
@@ -145,52 +140,49 @@ public class OnlineCoursesAnalyzer {
     }
 
     public Map<String, List<List<String>>> getCourseListOfInstructor() {
-        Map<String, List<List<String>>> instructorToCourseListMap= new HashMap<>();
+        Map<String, List<List<String>>> instructorToCourseListMap = new HashMap<>();
         for (String[] row : data) {
             String[] instructors = (row[4].contains("\"") ? row[4].substring(1, row[4].length() - 1) : row[4]).split(","); // 获取讲师姓名列表
 
 
-
-            String courseName = (row[3].contains("\"")?row[3].substring(1,row[3].length()-1):row[3]); // 获取课程名称
-            if(instructors.length>1) {
+            String courseName = (row[3].contains("\"") ? row[3].substring(1, row[3].length() - 1) : row[3]); // 获取课程名称
+            if (instructors.length > 1) {
                 for (String instructor : instructors) {
                     String instructorName = instructor.trim();
-                    List<List<String>>tmpList =new ArrayList<>();
+                    List<List<String>> tmpList = new ArrayList<>();
                     tmpList.add(new ArrayList<>());
                     tmpList.add(new ArrayList<>());
-                    instructorToCourseListMap.putIfAbsent(instructorName,tmpList);
+                    instructorToCourseListMap.putIfAbsent(instructorName, tmpList);
                     instructorToCourseListMap.get(instructorName).get(1).add(courseName);
 
                 }
-            }
-            else {
-                List<List<String>>tmpList =new ArrayList<>();
+            } else {
+                List<List<String>> tmpList = new ArrayList<>();
                 tmpList.add(new ArrayList<>());
 
                 tmpList.add(new ArrayList<>());
-                instructorToCourseListMap.putIfAbsent(instructors[0],tmpList);
+                instructorToCourseListMap.putIfAbsent(instructors[0], tmpList);
                 instructorToCourseListMap.get(instructors[0]).get(0).add(courseName);
             }
         }
-        for ( Map.Entry<String, List<List<String>>> entry : instructorToCourseListMap.entrySet()) {
-            String key=entry.getKey();
+        for (Map.Entry<String, List<List<String>>> entry : instructorToCourseListMap.entrySet()) {
+            String key = entry.getKey();
 
-            List<List<String>>valuee=entry.getValue();
+            List<List<String>> valuee = entry.getValue();
             Set<String> set = new LinkedHashSet<>(valuee.get(0));
-            List<String>tmpzero = new ArrayList<>(set);
+            List<String> tmpzero = new ArrayList<>(set);
             Set<String> set2 = new LinkedHashSet<>(valuee.get(1));
-            List<String>tmpone = new ArrayList<>(set2);
-
+            List<String> tmpone = new ArrayList<>(set2);
 
 
             Collections.sort(tmpzero);
             Collections.sort(tmpone);
-            List<List<String>>tmppList =new ArrayList<>();
+            List<List<String>> tmppList = new ArrayList<>();
             tmppList.add(tmpzero);
 
 
             tmppList.add(tmpone);
-            instructorToCourseListMap.put(key,tmppList);
+            instructorToCourseListMap.put(key, tmppList);
         }
 //        selfCourse.get()
 //        otherCourse.get()
@@ -207,7 +199,6 @@ public class OnlineCoursesAnalyzer {
         } else if (by.equals("participants")) {
             comparator = Comparator.comparing(Course4::getParticipants).reversed().thenComparing(Comparator.comparing(Course4::getCourseName));
         } else {
-
 
 
             throw new IllegalArgumentException("Invalid argument for by: " + by);
@@ -244,7 +235,7 @@ public class OnlineCoursesAnalyzer {
                         && Double.parseDouble(row[17]) <= totalCourseHours)
 
 
-                .map(row -> (row[3].contains("\"")?row[3].substring(1,row[3].length()-1):row[3]))        //同 p4，这个应该要返回的是名字而非课程代码
+                .map(row -> (row[3].contains("\"") ? row[3].substring(1, row[3].length() - 1) : row[3]))        //同 p4，这个应该要返回的是名字而非课程代码
                 .distinct()
                 .sorted()
                 .toList();
@@ -277,10 +268,8 @@ public class OnlineCoursesAnalyzer {
     }
 
     public List<String> recommendCourses(int age, int gender, int isBachelorOrHigher) {
-        List<Course6> course6s= data.stream().map(row -> new Course6(row[1], row[2], row[3], Double.parseDouble(row[19]), Double.parseDouble(row[20]), Double.parseDouble(row[22]))).toList();
+        List<Course6> course6s = data.stream().map(row -> new Course6(row[1], row[2], row[3], Double.parseDouble(row[19]), Double.parseDouble(row[20]), Double.parseDouble(row[22]))).toList();
         Map<String, List<Course6>> courseGroups = course6s.stream().collect(Collectors.groupingBy(Course6::getCourseNum));
-
-
 
 
         Map<String, Double> averageUserAge = courseGroups.entrySet().stream().collect(Collectors.toMap(
@@ -294,15 +283,12 @@ public class OnlineCoursesAnalyzer {
         ));
 
 
-
-
         Map<String, Double> averageBachelorRate = courseGroups.entrySet().stream().collect(Collectors.toMap(
                 Map.Entry::getKey,
                 entry -> entry.getValue().stream().collect(Collectors.averagingDouble(Course6::getAverageBachelorRate))
         ));
 
         List<CourseSimilarity> similarityList = new ArrayList<>();
-
 
 
         for (String courseNum : averageUserAge.keySet()) {
@@ -318,10 +304,9 @@ public class OnlineCoursesAnalyzer {
         similarityList.sort(Comparator.comparingDouble(CourseSimilarity::getSimilarity));
 
 
-
         List<String> topTenCourses = new ArrayList<>();
         for (int i = 0; i < 10 && i < similarityList.size(); i++) {
-            List<Course6> ll=courseGroups.get(similarityList.get(i).getCourseNum());
+            List<Course6> ll = courseGroups.get(similarityList.get(i).getCourseNum());
             String courseNameA = ll.stream()
                     .min(Comparator.comparing(Course6::getLaunchDate))
                     .map(Course6::getCourseName)
